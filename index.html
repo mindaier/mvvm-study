@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <div>{{person.name}} -- {{person.age}}</div>
+    <div>{{person.fav}}</div>
+    <ul>
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+    </ul>
+    <div>{{msg}}</div>
+    <div v-text="msg"></div>
+    <div v-html="htmlStr"></div>
+    <input type="text" v-model="msg">
+  </div>
+
+  <script src="./mvue.js"></script>
+
+  <script>
+    let vm = new mVue({
+      el: '#app',
+      data: {
+        person: {
+          name: 'zs',
+          age: 20,
+          fav: 'study'
+        },
+        msg: 'vue 双向数据绑定'
+      }
+    })
+
+  </script>
+</body>
+</html>
