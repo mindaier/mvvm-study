@@ -19,6 +19,8 @@
     <div v-text="msg"></div>
     <div v-html="htmlStr"></div>
     <input type="text" v-model="msg">
+    <button v-on:click="btnClick">按钮1</button>
+    <button @click="btnClick">按钮@</button>
   </div>
 
   <script src="./mvue.js"></script>
@@ -34,6 +36,11 @@
         },
         msg: '学习mvvm使用原理',
         htmlStr: '<span>前端要努力</span>'
+      },
+      methods: {
+        btnClick() {
+          console.log('按钮点击了', this);
+        }
       }
     })
 

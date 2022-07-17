@@ -11,7 +11,7 @@ const compileUtil = {
     let value;
     if (expr.indexOf('{{') !== -1) {
       value = expr.replace(/\{\{(.+?)\}\}/g, (...args) => {
-        console.log('args', args[1]); // person.name person.age person.fav msg
+        // console.log('args', args[1]); // person.name person.age person.fav msg
         return this.getValue(args[1], vm)
       })
     } else { 
@@ -27,7 +27,11 @@ const compileUtil = {
     const value = this.getValue(expr, vm);
     this.updater.modelUpdater(node, value);
   },
-  on(node, expr, vm, eventName) { },
+  on(node, expr, vm, eventName) { // v-on
+    // expr: btnclick | eventName: click
+    let fn = vm.$options.methods && vm.$options.methods[expr];
+    node.addEventListener(eventName, fn.bind(vm), false);
+  },
   // 更新的函数
   updater: {
     modelUpdater(node, value) {
@@ -91,7 +95,7 @@ class Compile {
     // 获取节点上的属性
     const attributes = node.attributes;
     // console.log('attributes', attributes);
-    [...attributes].forEach(attr => { 
+    [...attributes].forEach(attr => {
       //  console.log('attr', attr);
       const { name, value } = attr;
       // console.log('name', name, value); 
@@ -104,12 +108,12 @@ class Compile {
 
         // 删除标签上的有指令的属性 v-text="msg"
         node.removeAttribute('v-' + directive);
+
+      } else if (this.isEventName(name)) { // @click="btnClick"
+        let [, eventName] = name.split('@')
+        compileUtil['on'](node, value, this.vm, eventName);
       }
     })
-  }
-  // 是否是 v- 开头的属性
-  isDirective(attrName) { 
-    return attrName.startsWith('v-')
   }
   // 编译文本节点
   compileText(node) { 
@@ -120,6 +124,13 @@ class Compile {
       // console.log(content);
       compileUtil['text'](node, content, this.vm)
     }
+  }
+  isEventName(attrName) { 
+    return attrName.startsWith('@')
+  }
+  // 是否是 v- 开头的属性
+  isDirective(attrName) { 
+    return attrName.startsWith('v-')
   }
   node2Fragement(el) { 
     // 创建文档碎片
