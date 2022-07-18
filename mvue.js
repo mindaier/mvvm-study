@@ -6,12 +6,20 @@ const compileUtil = {
       return data[currentVal]
     }, vm.$data)
   },
+  getContentVal(expr, vm) { 
+    reeturn expr.replace(/\{\{(.+?)\}\}/g, (...args) => { 
+      return this.getVal(args[1], vm);
+    })
+  },
   text(node, expr, vm) { // v-text expr: msg '学习mvvm使用原理'
     // const value = vm.$data[expr]
     let value;
     if (expr.indexOf('{{') !== -1) {
       value = expr.replace(/\{\{(.+?)\}\}/g, (...args) => {
         // console.log('args', args[1]); // person.name person.age person.fav msg
+        new watcher(vm, args[1], newVal => { 
+          this.updater.textUpdater(node, this.getContentVal(expr, vm));
+        })
         return this.getValue(args[1], vm)
       })
     } else { 
@@ -20,11 +28,17 @@ const compileUtil = {
     this.updater.textUpdater(node, value) 
   },
   html(node, expr, vm) { // v-html
-    const value = this.getValue(expr, vm)
-    this.updater.htmlUpdater(node, value)
+    const value = this.getValue(expr, vm);
+    new watcher(vm, expr, newVal => { 
+      this.updater.htmlUpdater(node, newVal);
+    });
+    this.updater.htmlUpdater(node, value);
   },
   model(node, expr, vm) { // v-model
     const value = this.getValue(expr, vm);
+    new watcher(vm, expr, newVal => { 
+      this.updater.modelUpdater(node, newVal);
+    })
     this.updater.modelUpdater(node, value);
   },
   on(node, expr, vm, eventName) { // v-on
@@ -155,6 +169,7 @@ class mVue {
     this.$options = options
     if (this.$el) { 
       // 1. 实现一个数据观察者
+      new Observer(this.$data)
       // 2. 实现一个指令解析器
       new Compile(this.$el, this)
     }
